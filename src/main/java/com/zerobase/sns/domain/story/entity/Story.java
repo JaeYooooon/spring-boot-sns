@@ -1,6 +1,6 @@
-package com.zerobase.sns.domain.story;
+package com.zerobase.sns.domain.story.entity;
 
-import com.zerobase.sns.domain.user.User;
+import com.zerobase.sns.domain.user.entity.User;
 import com.zerobase.sns.global.entity.BaseEntity;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

@@ -1,10 +1,10 @@
-package com.zerobase.sns.domain.post;
+package com.zerobase.sns.domain.post.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.zerobase.sns.domain.post.comment.Comment;
-import com.zerobase.sns.domain.post.likes.Likes;
-import com.zerobase.sns.domain.post.tag.Tag;
-import com.zerobase.sns.domain.user.User;
+import com.zerobase.sns.domain.comment.entity.Comment;
+import com.zerobase.sns.domain.likes.entity.Likes;
+import com.zerobase.sns.domain.tag.entity.Tag;
+import com.zerobase.sns.domain.user.entity.User;
 import com.zerobase.sns.global.entity.BaseEntity;
 import java.time.LocalDateTime;
 import java.util.List;

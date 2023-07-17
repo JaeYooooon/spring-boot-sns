@@ -1,10 +1,8 @@
-package com.zerobase.sns.domain.post.tag;
+package com.zerobase.sns.domain.alarm.entity;
 
-import com.zerobase.sns.domain.alarm.Alarm;
-import com.zerobase.sns.domain.post.Post;
-import com.zerobase.sns.domain.user.User;
+import com.zerobase.sns.domain.tag.entity.Tag;
+import com.zerobase.sns.domain.user.entity.User;
 import com.zerobase.sns.global.entity.BaseEntity;
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -22,20 +20,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Tag extends BaseEntity {
+public class Alarm extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  private String content;
+
   @ManyToOne
   @JoinColumn(name = "user_id")
   private User user;
 
-  @ManyToOne
-  @JoinColumn(name = "post_id")
-  private Post post;
-
-  @OneToOne(mappedBy = "tag", cascade = CascadeType.ALL)
-  private Alarm alarm;
+  @OneToOne
+  @JoinColumn(name = "tag_id")
+  private Tag tag;
 }

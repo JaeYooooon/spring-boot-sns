@@ -1,4 +1,4 @@
-package com.zerobase.sns.domain.follow;
+package com.zerobase.sns.domain.follow.entity;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

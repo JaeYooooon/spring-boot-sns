@@ -1,8 +1,7 @@
-package com.zerobase.sns.domain.post.comment.reply;
+package com.zerobase.sns.domain.visitor.entity;
 
-import com.zerobase.sns.domain.post.comment.Comment;
-import com.zerobase.sns.domain.user.User;
-import com.zerobase.sns.global.entity.BaseEntity;
+import com.zerobase.sns.domain.story.entity.Story;
+import com.zerobase.sns.domain.user.entity.User;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -19,19 +18,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Reply extends BaseEntity {
+public class Visitor {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  private String reply;
+  @ManyToOne
+  @JoinColumn(name = "story_id")
+  private Story story;
 
   @ManyToOne
-  @JoinColumn(name = "comment_id")
-  private Comment parentComment;
-
-  @ManyToOne
-  @JoinColumn(name = "user_id")
-  private User user;
+  @JoinColumn(name = "visitor_id")
+  private User visitor;
 }

@@ -1,6 +1,6 @@
-package com.zerobase.sns.domain.user;
+package com.zerobase.sns.domain.user.entity;
 
-import com.zerobase.sns.domain.follow.Follow;
+import com.zerobase.sns.domain.follow.entity.Follow;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
