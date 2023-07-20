@@ -5,6 +5,7 @@ import com.zerobase.sns.domain.user.dto.UserFollowListDTO;
 import com.zerobase.sns.domain.user.dto.UserReqDTO;
 import com.zerobase.sns.domain.user.dto.UserResDTO;
 import com.zerobase.sns.domain.user.dto.UserUpdateDTO;
+import com.zerobase.sns.domain.user.entity.User;
 import com.zerobase.sns.domain.user.service.UserService;
 import java.security.Principal;
 import lombok.RequiredArgsConstructor;
@@ -27,9 +28,13 @@ public class UserController {
 
   // 회원가입
   @PostMapping("/join")
-  public ResponseEntity<UserResDTO> join(@RequestBody UserDTO joinDTO) {
+  public ResponseEntity<UserResDTO> join(@RequestBody UserDTO joinDTO) throws InterruptedException {
 
-    return ResponseEntity.ok(userService.join(joinDTO));
+    User user = userService.join(joinDTO);
+
+    UserResDTO userResDTO = UserResDTO.fromUser(user);
+
+    return ResponseEntity.ok(userResDTO);
   }
 
   // 로그인
@@ -49,9 +54,13 @@ public class UserController {
   // 회원정보 수정
   @PutMapping
   public ResponseEntity<UserResDTO> updateUser(@RequestBody UserUpdateDTO userUpdateDTO,
-      Principal principal) {
+      Principal principal) throws InterruptedException {
 
-    return ResponseEntity.ok(userService.updateUser(userUpdateDTO, principal));
+    User updatedUser = userService.updateUser(userUpdateDTO, principal);
+
+    UserResDTO userResDTO = UserResDTO.fromUser(updatedUser);
+
+    return ResponseEntity.ok(userResDTO);
   }
 
   // 공개 범위 설정
@@ -59,7 +68,11 @@ public class UserController {
   public ResponseEntity<UserResDTO> updatePrivacy(@RequestParam("isPrivate") boolean isPrivate,
       Principal principal) {
 
-    return ResponseEntity.ok(userService.updatePrivacy(isPrivate, principal));
+    User user = userService.updatePrivacy(isPrivate, principal);
+
+    UserResDTO userResDTO = UserResDTO.fromUser(user);
+
+    return ResponseEntity.ok(userResDTO);
   }
 
   // 본인 정보 조회
