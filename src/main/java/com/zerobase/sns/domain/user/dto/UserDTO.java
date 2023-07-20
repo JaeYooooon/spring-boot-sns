@@ -23,16 +23,4 @@ public class UserDTO {
   public boolean getIsPrivate() {
     return isPrivate;
   }
-
-  public void validateUserId() {
-    if (this.userId.length() < 7) {
-      throw new CustomException(ErrorCode.INVALID_USER_ID);
-    }
-  }
-
-  public void validateUserPw() {
-    if (this.password.length() < 7) {
-      throw new CustomException(ErrorCode.INVALID_USER_PW);
-    }
-  }
 }

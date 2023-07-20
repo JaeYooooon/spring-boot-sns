@@ -8,11 +8,12 @@ import static com.zerobase.sns.global.exception.ErrorCode.NOT_FOUND_USER;
 import com.zerobase.sns.domain.user.dto.UserDTO;
 import com.zerobase.sns.domain.user.dto.UserFollowListDTO;
 import com.zerobase.sns.domain.user.dto.UserReqDTO;
-import com.zerobase.sns.domain.user.dto.UserResDTO;
 import com.zerobase.sns.domain.user.dto.UserUpdateDTO;
 import com.zerobase.sns.domain.user.entity.User;
 import com.zerobase.sns.domain.user.repository.UserRepository;
 import com.zerobase.sns.global.exception.CustomException;
+import com.zerobase.sns.global.exception.ErrorCode;
+import com.zerobase.sns.global.redisLock.RedisLockRepository;
 import com.zerobase.sns.global.security.JwtTokenProvider;
 import java.security.Principal;
 import java.util.Optional;
@@ -28,37 +29,46 @@ public class UserService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
   private final JwtTokenProvider jwtTokenProvider;
-
+  private final RedisLockRepository redisLockRepository;
 
   // 회원 가입
   @Transactional
-  public UserResDTO join(UserDTO joinDTO) {
+  public User join(UserDTO joinDTO) throws InterruptedException {
+    validateUserId(joinDTO.getUserId());
+    validateUserPw(joinDTO.getPassword());
 
-    joinDTO.validateUserId();
-    joinDTO.validateUserPw();
+    String userId = joinDTO.getUserId();
+    String nickname = joinDTO.getNickName();
 
-    User user = User.builder()
-        .userId(joinDTO.getUserId())
-        .password(passwordEncoder.encode(joinDTO.getPassword()))
-        .nickName(joinDTO.getNickName())
-        .isPrivate(joinDTO.getIsPrivate())
-        .build();
-
-    if (userRepository.existsByUserId(user.getUserId())) {
+    if (userRepository.existsByUserId(userId)) {
       throw new CustomException(ALREADY_EXIST_USER);
     }
 
-    if (userRepository.existsByNickName(user.getNickName())) {
+    if (userRepository.existsByNickName(nickname)) {
       throw new CustomException(ALREADY_EXIST_NICKNAME);
     }
 
-    userRepository.save(user);
+    while (!redisLockRepository.lock(userId)) {
+      Thread.sleep(100);
+    }
+    while (!redisLockRepository.lock(nickname)) {
+      Thread.sleep(100);
+    }
 
-    return UserResDTO.builder()
-        .userId(user.getUserId())
-        .nickName(user.getNickName())
-        .isPrivate(user.getIsPrivate())
-        .build();
+    try {
+      User user = User.builder()
+          .userId(userId)
+          .password(passwordEncoder.encode(joinDTO.getPassword()))
+          .nickName(nickname)
+          .isPrivate(joinDTO.getIsPrivate())
+          .build();
+
+      userRepository.save(user);
+      return user;
+    } finally {
+      redisLockRepository.unlock(userId);
+      redisLockRepository.unlock(nickname);
+    }
   }
 
   // 로그인
@@ -83,51 +93,49 @@ public class UserService {
   }
 
   // 회원정보 수정
-  @Transactional
-  public UserResDTO updateUser(UserUpdateDTO userUpdateDTO, Principal principal) {
-
-    userUpdateDTO.validateUserId();
-    userUpdateDTO.validateUserPw();
+  public User updateUser(UserUpdateDTO userUpdateDTO, Principal principal) throws InterruptedException {
+    validateUserPw(userUpdateDTO.getPassword());
 
     User user = getUserByPrincipal(principal);
 
-    String newUserId = Optional.ofNullable(userUpdateDTO.getUserId())
-        .orElse(user.getUserId());
     String newPassword = Optional.ofNullable(userUpdateDTO.getPassword())
         .orElse(user.getPassword());
     String newNickName = Optional.ofNullable(userUpdateDTO.getNickName())
         .orElse(user.getNickName());
 
-    if (userRepository.existsByNickName(newNickName)) {
-      throw new CustomException(ALREADY_EXIST_NICKNAME);
+    if (newNickName != null && !newNickName.equals(user.getNickName())) {
+      while (!redisLockRepository.lock(newNickName)) {
+        Thread.sleep(100);
+      }
+      try {
+        if (userRepository.existsByNickName(newNickName)) {
+          throw new CustomException(ALREADY_EXIST_NICKNAME);
+        }
+
+        user.setNickName(newNickName);
+      } finally {
+        redisLockRepository.unlock(newNickName);
+      }
     }
 
-    user.setUserId(newUserId);
+    user.setNickName(user.getNickName());
     user.setPassword(passwordEncoder.encode(newPassword));
-    user.setNickName(newNickName);
 
     userRepository.save(user);
 
-    return UserResDTO.builder()
-        .userId(user.getUserId())
-        .nickName(user.getNickName())
-        .isPrivate(user.getIsPrivate())
-        .build();
+    return user;
   }
+
 
   // 공개 범위 설정
   @Transactional
-  public UserResDTO updatePrivacy(boolean isPrivate, Principal principal) {
+  public User updatePrivacy(boolean isPrivate, Principal principal) {
     User user = getUserByPrincipal(principal);
 
     user.setIsPrivate(isPrivate);
     userRepository.save(user);
 
-    return UserResDTO.builder()
-        .userId(user.getUserId())
-        .nickName(user.getNickName())
-        .isPrivate(user.getIsPrivate())
-        .build();
+    return user;
   }
 
   // 본인 정보 조회
@@ -156,5 +164,17 @@ public class UserService {
     String userId = principal.getName();
     return userRepository.findByUserId(userId)
         .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
+  }
+
+  public void validateUserId(String userId) {
+    if (userId.length() < 7) {
+      throw new CustomException(ErrorCode.INVALID_USER_ID);
+    }
+  }
+
+  public void validateUserPw(String password) {
+    if (password.length() < 7) {
+      throw new CustomException(ErrorCode.INVALID_USER_PW);
+    }
   }
 }
