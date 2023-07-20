@@ -13,7 +13,7 @@ import com.zerobase.sns.domain.user.entity.User;
 import com.zerobase.sns.domain.user.repository.UserRepository;
 import com.zerobase.sns.global.exception.CustomException;
 import com.zerobase.sns.global.exception.ErrorCode;
-import com.zerobase.sns.global.redisLock.RedisLockRepository;
+import com.zerobase.sns.global.redis.RedisLockRepository;
 import com.zerobase.sns.global.security.JwtTokenProvider;
 import java.security.Principal;
 import java.util.Optional;
