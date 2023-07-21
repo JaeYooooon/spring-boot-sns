@@ -9,7 +9,8 @@ public enum FollowStatus {
   FOLLOWING,
   UNFOLLOWING,
   REQUESTED,
-  ACCEPTED;
+  ACCEPTED,
+  REJECTED;
 
   public static final FollowStatus DEFAULT = ACCEPTED;
 }

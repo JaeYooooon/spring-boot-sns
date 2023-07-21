@@ -16,7 +16,12 @@ public enum ErrorCode {
   ALREADY_EXIST_NICKNAME(HttpStatus.BAD_REQUEST, "이미 등록된 닉네임입니다. "),
 
   // 팔로우
-  CANNOT_FOLLOW_YOURSELF(HttpStatus.BAD_REQUEST, "자기 자신은 팔로우할 수 없습니다."),;
+  CANNOT_FOLLOW_YOURSELF(HttpStatus.BAD_REQUEST, "자기 자신은 팔로우할 수 없습니다."),
+  FOLLOW_REQUEST_ALREADY_ACCEPTED(HttpStatus.BAD_REQUEST, "이미 수락되었습니다."),
+  FOLLOW_REQUEST_ALREADY_REJECTED(HttpStatus.BAD_REQUEST, "이미 거절되었습니다."),
+
+  // 권한
+  UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "권한이 없습니다.");
 
   private final HttpStatus httpStatus;
   private final String detail;
