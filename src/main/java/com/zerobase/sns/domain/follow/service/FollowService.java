@@ -1,12 +1,10 @@
 package com.zerobase.sns.domain.follow.service;
 
-import static com.zerobase.sns.domain.follow.entity.FollowStatus.ACCEPTED;
 import static com.zerobase.sns.domain.follow.entity.FollowStatus.FOLLOWING;
 import static com.zerobase.sns.domain.follow.entity.FollowStatus.REQUESTED;
 import static com.zerobase.sns.domain.follow.entity.FollowStatus.UNFOLLOWING;
 import static com.zerobase.sns.global.exception.ErrorCode.CANNOT_FOLLOW_YOURSELF;
 import static com.zerobase.sns.global.exception.ErrorCode.FOLLOW_REQUEST_ALREADY_ACCEPTED;
-import static com.zerobase.sns.global.exception.ErrorCode.FOLLOW_REQUEST_ALREADY_REJECTED;
 import static com.zerobase.sns.global.exception.ErrorCode.NOT_FOUND_USER;
 import static com.zerobase.sns.global.exception.ErrorCode.UNAUTHORIZED_ACCESS;
 
@@ -101,22 +99,22 @@ public class FollowService {
     Follow followRequest = followRepository.findById(followerId)
         .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
 
-    if(!followRequest.getFollowing().equals(user)){
+    if (!followRequest.getFollowing().equals(user)) {
       throw new CustomException(UNAUTHORIZED_ACCESS);
     }
 
-    if(followRequest.getStatus().equals(ACCEPTED)){
+    if (followRequest.getStatus().equals(FOLLOWING)) {
       throw new CustomException(FOLLOW_REQUEST_ALREADY_ACCEPTED);
     }
 
-    followRequest.setStatus(FollowStatus.ACCEPTED);
+    followRequest.setStatus(FOLLOWING);
     followRepository.save(followRequest);
 
-    return FollowStatus.ACCEPTED;
+    return FOLLOWING;
   }
 
   @Transactional
-  public FollowStatus rejectFollowRequest(Long followingId, Principal principal) {
+  public void rejectFollowRequest(Long followingId, Principal principal) {
     String userId = principal.getName();
     User user = userRepository.findByUserId(userId)
         .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
@@ -124,17 +122,10 @@ public class FollowService {
     Follow followRequest = followRepository.findById(followingId)
         .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
 
-    if(!followRequest.getFollowing().equals(user)){
+    if (!followRequest.getFollowing().equals(user)) {
       throw new CustomException(UNAUTHORIZED_ACCESS);
     }
 
-    if (followRequest.getStatus() == FollowStatus.REJECTED) {
-      throw new CustomException(FOLLOW_REQUEST_ALREADY_REJECTED);
-    }
-
-    followRequest.setStatus(FollowStatus.REJECTED);
-    followRepository.save(followRequest);
-
-    return FollowStatus.REJECTED;
+    followRepository.delete(followRequest);
   }
 }

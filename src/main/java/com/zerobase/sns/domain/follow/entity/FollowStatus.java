@@ -8,9 +8,5 @@ import lombok.RequiredArgsConstructor;
 public enum FollowStatus {
   FOLLOWING,
   UNFOLLOWING,
-  REQUESTED,
-  ACCEPTED,
-  REJECTED;
-
-  public static final FollowStatus DEFAULT = ACCEPTED;
+  REQUESTED
 }

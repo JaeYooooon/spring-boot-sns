@@ -37,5 +37,5 @@ public class Follow extends BaseEntity {
   private User following;
 
   @Enumerated(EnumType.STRING)
-  private FollowStatus status = FollowStatus.DEFAULT;
+  private FollowStatus status;
 }

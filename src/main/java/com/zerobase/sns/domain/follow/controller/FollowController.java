@@ -31,13 +31,11 @@ public class FollowController {
   @GetMapping("/sent")
   public ResponseEntity<List<FollowingDTO>> getFollowRequestsSentByUser(Principal principal) {
 
-
     return ResponseEntity.ok(followService.getFollowRequestsSentByUser(principal));
   }
 
   @GetMapping("/received")
   public ResponseEntity<List<FollowingDTO>> getFollowRequestsReceivedByUser(Principal principal) {
-
 
     return ResponseEntity.ok(followService.getFollowRequestsReceivedByUser(principal));
   }
@@ -50,10 +48,8 @@ public class FollowController {
   }
 
   @PostMapping("/reject/{followingId}")
-  public ResponseEntity<FollowStatus> rejectFollowRequest(
-      @PathVariable Long followingId
-      , Principal principal) {
+  public void rejectFollowRequest(@PathVariable Long followingId, Principal principal) {
 
-    return ResponseEntity.ok(followService.rejectFollowRequest(followingId, principal));
+    followService.rejectFollowRequest(followingId, principal);
   }
 }

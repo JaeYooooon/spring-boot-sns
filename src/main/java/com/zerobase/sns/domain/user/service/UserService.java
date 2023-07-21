@@ -1,10 +1,13 @@
 package com.zerobase.sns.domain.user.service;
 
+import static com.zerobase.sns.domain.follow.entity.FollowStatus.FOLLOWING;
 import static com.zerobase.sns.global.exception.ErrorCode.ALREADY_EXIST_NICKNAME;
 import static com.zerobase.sns.global.exception.ErrorCode.ALREADY_EXIST_USER;
 import static com.zerobase.sns.global.exception.ErrorCode.NONE_CORRECT_PW;
 import static com.zerobase.sns.global.exception.ErrorCode.NOT_FOUND_USER;
 
+import com.zerobase.sns.domain.follow.dto.FollowerDTO;
+import com.zerobase.sns.domain.follow.dto.FollowingDTO;
 import com.zerobase.sns.domain.user.dto.UserDTO;
 import com.zerobase.sns.domain.user.dto.UserFollowListDTO;
 import com.zerobase.sns.domain.user.dto.UserReqDTO;
@@ -16,6 +19,7 @@ import com.zerobase.sns.global.exception.ErrorCode;
 import com.zerobase.sns.global.redis.RedisLockRepository;
 import com.zerobase.sns.global.security.JwtTokenProvider;
 import java.security.Principal;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -93,7 +97,8 @@ public class UserService {
   }
 
   // 회원정보 수정
-  public User updateUser(UserUpdateDTO userUpdateDTO, Principal principal) throws InterruptedException {
+  public User updateUser(UserUpdateDTO userUpdateDTO, Principal principal)
+      throws InterruptedException {
     validateUserPw(userUpdateDTO.getPassword());
 
     User user = getUserByPrincipal(principal);
@@ -154,9 +159,19 @@ public class UserService {
   public UserFollowListDTO getFollowList(Principal principal) {
     User user = getUserByPrincipal(principal);
 
+    List<FollowingDTO> followingDTOs = user.getFollowingList().stream()
+        .filter(follow -> follow.getStatus().equals(FOLLOWING))
+        .map(FollowingDTO::convertToDTO)
+        .toList();
+
+    List<FollowerDTO> followerDTOs = user.getFollowerList().stream()
+        .filter(follow -> follow.getStatus().equals(FOLLOWING))
+        .map(FollowerDTO::convertToDTO)
+        .toList();
+
     return UserFollowListDTO.builder()
-        .followerList(user.getFollowerList())
-        .followingList(user.getFollowingList())
+        .followerList(followerDTOs)
+        .followingList(followingDTOs)
         .build();
   }
 

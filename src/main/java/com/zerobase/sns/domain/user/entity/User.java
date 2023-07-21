@@ -1,5 +1,6 @@
 package com.zerobase.sns.domain.user.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.zerobase.sns.domain.follow.entity.Follow;
 import java.util.List;
 import javax.persistence.CascadeType;
@@ -9,7 +10,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -35,8 +40,10 @@ public class User {
   private Boolean isPrivate;
 
   @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL)
+  @JsonBackReference
   private List<Follow> followingList;
 
   @OneToMany(mappedBy = "following", cascade = CascadeType.ALL)
+  @JsonBackReference
   private List<Follow> followerList;
 }
