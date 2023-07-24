@@ -1,6 +1,7 @@
 package com.zerobase.sns.domain.user.dto;
 
-import com.zerobase.sns.domain.follow.entity.Follow;
+import com.zerobase.sns.domain.follow.dto.FollowerDTO;
+import com.zerobase.sns.domain.follow.dto.FollowingDTO;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,6 +16,6 @@ import lombok.Setter;
 @Builder
 public class UserFollowListDTO {
 
-  private List<Follow> followingList;
-  private List<Follow> followerList;
+  private List<FollowingDTO> followingList;
+  private List<FollowerDTO> followerList;
 }

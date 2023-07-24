@@ -1,4 +1,4 @@
-package com.zerobase.sns.global.redisLock;
+package com.zerobase.sns.global.redis;
 
 import java.time.Duration;
 import org.springframework.data.redis.core.RedisTemplate;
