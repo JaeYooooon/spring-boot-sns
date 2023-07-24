@@ -24,7 +24,9 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -136,7 +138,11 @@ public class PostService {
 
     followings.add(currentUser);
 
-    return postRepository.findByUserIn(followings, pageable);
+    // 최신순 정렬
+    Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+        Sort.by(Sort.Direction.DESC, "createdTime"));
+
+    return postRepository.findByUserIn(followings, sortedPageable);
   }
 
 
