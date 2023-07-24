@@ -1,10 +1,13 @@
 package com.zerobase.sns.domain.post.service;
 
+import static com.zerobase.sns.global.exception.ErrorCode.NOT_FOUND_POST;
 import static com.zerobase.sns.global.exception.ErrorCode.NOT_FOUND_USER;
+import static com.zerobase.sns.global.exception.ErrorCode.UNAUTHORIZED_ACCESS;
 
 import com.zerobase.sns.domain.alarm.entity.Alarm;
 import com.zerobase.sns.domain.alarm.repository.AlarmRepository;
 import com.zerobase.sns.domain.post.dto.PostCreateDTO;
+import com.zerobase.sns.domain.post.dto.PostUpdateDTO;
 import com.zerobase.sns.domain.post.entity.Post;
 import com.zerobase.sns.domain.post.repository.PostRepository;
 import com.zerobase.sns.domain.tag.entity.Tag;
@@ -15,6 +18,7 @@ import com.zerobase.sns.global.exception.CustomException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,6 +72,29 @@ public class PostService {
     }
 
     return savedPost;
+  }
+
+  // 게시글 수정
+  @Transactional
+  public Post updatePost(Long postId, PostUpdateDTO postUpdateDTO, Principal principal) {
+    String userId = principal.getName();
+    User user = userRepository.findByUserId(userId)
+        .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
+
+    Post post = postRepository.findById(postId)
+        .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
+
+    if (!post.getUser().equals(user)) {
+      throw new CustomException(UNAUTHORIZED_ACCESS);
+    }
+
+    String title = Optional.ofNullable(postUpdateDTO.getTitle()).orElse(post.getTitle());
+    String content = Optional.ofNullable(postUpdateDTO.getContent()).orElse(post.getContent());
+
+    post.setTitle(title);
+    post.setContent(content);
+
+    return postRepository.save(post);
   }
 
 
