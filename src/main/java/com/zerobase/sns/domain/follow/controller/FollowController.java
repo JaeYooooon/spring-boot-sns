@@ -4,8 +4,9 @@ import com.zerobase.sns.domain.follow.dto.FollowingDTO;
 import com.zerobase.sns.domain.follow.entity.FollowStatus;
 import com.zerobase.sns.domain.follow.service.FollowService;
 import java.security.Principal;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,15 +30,17 @@ public class FollowController {
   }
 
   @GetMapping("/sent")
-  public ResponseEntity<List<FollowingDTO>> getFollowRequestsSentByUser(Principal principal) {
+  public ResponseEntity<Page<FollowingDTO>> getFollowRequestsSentByUser(Principal principal,
+      Pageable pageable) {
 
-    return ResponseEntity.ok(followService.getFollowRequestsSentByUser(principal));
+    return ResponseEntity.ok(followService.getFollowRequestsSentByUser(principal, pageable));
   }
 
   @GetMapping("/received")
-  public ResponseEntity<List<FollowingDTO>> getFollowRequestsReceivedByUser(Principal principal) {
+  public ResponseEntity<Page<FollowingDTO>> getFollowRequestsReceivedByUser(Principal principal,
+      Pageable pageable) {
 
-    return ResponseEntity.ok(followService.getFollowRequestsReceivedByUser(principal));
+    return ResponseEntity.ok(followService.getFollowRequestsReceivedByUser(principal, pageable));
   }
 
   @PostMapping("/accept/{followerId}")

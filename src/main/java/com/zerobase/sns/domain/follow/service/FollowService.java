@@ -16,9 +16,9 @@ import com.zerobase.sns.domain.user.entity.User;
 import com.zerobase.sns.domain.user.repository.UserRepository;
 import com.zerobase.sns.global.exception.CustomException;
 import java.security.Principal;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,29 +65,27 @@ public class FollowService {
     }
   }
 
-  public List<FollowingDTO> getFollowRequestsSentByUser(Principal principal) {
+  public Page<FollowingDTO> getFollowRequestsSentByUser(Principal principal, Pageable pageable) {
     String userId = principal.getName();
     User follower = userRepository.findByUserId(userId)
         .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
 
-    List<Follow> followRequestsSent = followRepository.findByFollowerAndStatus(follower, REQUESTED);
+    Page<Follow> followRequestsSent = followRepository.findByFollowerAndStatus(follower, REQUESTED,
+        pageable);
 
-    return followRequestsSent.stream()
-        .map(FollowingDTO::convertToDTO)
-        .collect(Collectors.toList());
+    return followRequestsSent.map(FollowingDTO::convertToDTO);
   }
 
-  public List<FollowingDTO> getFollowRequestsReceivedByUser(Principal principal) {
+  public Page<FollowingDTO> getFollowRequestsReceivedByUser(Principal principal,
+      Pageable pageable) {
     String userId = principal.getName();
     User following = userRepository.findByUserId(userId)
         .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
 
-    List<Follow> followRequestsReceived = followRepository.findByFollowingAndStatus(following,
-        REQUESTED);
+    Page<Follow> followRequestsReceived = followRepository.findByFollowingAndStatus(following,
+        REQUESTED, pageable);
 
-    return followRequestsReceived.stream()
-        .map(FollowingDTO::convertToDTO)
-        .collect(Collectors.toList());
+    return followRequestsReceived.map(FollowingDTO::convertToDTO);
   }
 
   @Transactional
@@ -103,7 +101,7 @@ public class FollowService {
       throw new CustomException(UNAUTHORIZED_ACCESS);
     }
 
-    if (followRequest.getStatus().equals(FOLLOWING)) {
+    if (followRequest.getStatus() == FOLLOWING) {
       throw new CustomException(FOLLOW_REQUEST_ALREADY_ACCEPTED);
     }
 
