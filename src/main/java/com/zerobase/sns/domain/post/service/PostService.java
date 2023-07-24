@@ -6,6 +6,9 @@ import static com.zerobase.sns.global.exception.ErrorCode.UNAUTHORIZED_ACCESS;
 
 import com.zerobase.sns.domain.alarm.entity.Alarm;
 import com.zerobase.sns.domain.alarm.repository.AlarmRepository;
+import com.zerobase.sns.domain.follow.entity.Follow;
+import com.zerobase.sns.domain.follow.entity.FollowStatus;
+import com.zerobase.sns.domain.follow.repository.FollowRepository;
 import com.zerobase.sns.domain.post.dto.PostCreateDTO;
 import com.zerobase.sns.domain.post.dto.PostUpdateDTO;
 import com.zerobase.sns.domain.post.entity.Post;
@@ -20,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +36,7 @@ public class PostService {
   private final UserRepository userRepository;
   private final TagRepository tagRepository;
   private final AlarmRepository alarmRepository;
+  private final FollowRepository followRepository;
 
   // 게시글 작성
   @Transactional
@@ -113,6 +119,26 @@ public class PostService {
 
     postRepository.delete(post);
   }
+
+  // 게시글 목록
+  public Page<Post> getAllPosts(Principal principal, Pageable pageable) {
+    String userId = principal.getName();
+    User currentUser = userRepository.findByUserId(userId)
+        .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
+
+    List<User> followings = new ArrayList<>();
+
+    List<Follow> followingUsers = followRepository.findUsersByStatusAndFollower(
+        FollowStatus.FOLLOWING, currentUser);
+    for (Follow follow : followingUsers) {
+      followings.add(follow.getFollowing());
+    }
+
+    followings.add(currentUser);
+
+    return postRepository.findByUserIn(followings, pageable);
+  }
+
 
   private void createAlarm(User tagger, User taggedUser, Post post, Tag tag) {
     String content = tagger.getNickName() + "님이 당신을 '" + post.getTitle() + "' 글에 태그했습니다.";
