@@ -160,12 +160,12 @@ public class UserService {
     User user = getUserByPrincipal(principal);
 
     List<FollowingDTO> followingDTOs = user.getFollowingList().stream()
-        .filter(follow -> follow.getStatus().equals(FOLLOWING))
+        .filter(follow -> follow.getStatus() == FOLLOWING)
         .map(FollowingDTO::convertToDTO)
         .toList();
 
     List<FollowerDTO> followerDTOs = user.getFollowerList().stream()
-        .filter(follow -> follow.getStatus().equals(FOLLOWING))
+        .filter(follow -> follow.getStatus() == FOLLOWING)
         .map(FollowerDTO::convertToDTO)
         .toList();
 

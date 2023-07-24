@@ -4,6 +4,8 @@ import com.zerobase.sns.domain.follow.entity.Follow;
 import com.zerobase.sns.domain.follow.entity.FollowStatus;
 import com.zerobase.sns.domain.user.entity.User;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,7 +16,8 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
 
   void deleteByFollowerIdAndFollowingId(Long followerId, Long followingId);
 
-  List<Follow> findByFollowerAndStatus(User follower, FollowStatus status);
+  Page<Follow> findByFollowerAndStatus(User follower, FollowStatus status, Pageable pageable);
 
-  List<Follow> findByFollowingAndStatus(User following, FollowStatus status);
+  Page<Follow> findByFollowingAndStatus(User follower, FollowStatus status, Pageable pageable);
+
 }
