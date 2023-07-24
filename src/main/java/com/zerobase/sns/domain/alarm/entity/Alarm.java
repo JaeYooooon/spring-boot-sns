@@ -1,6 +1,5 @@
 package com.zerobase.sns.domain.alarm.entity;
 
-import com.zerobase.sns.domain.tag.entity.Tag;
 import com.zerobase.sns.domain.user.entity.User;
 import com.zerobase.sns.global.entity.BaseEntity;
 import javax.persistence.Entity;
@@ -9,7 +8,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,7 +30,4 @@ public class Alarm extends BaseEntity {
   @JoinColumn(name = "user_id")
   private User user;
 
-  @OneToOne
-  @JoinColumn(name = "tag_id")
-  private Tag tag;
 }
