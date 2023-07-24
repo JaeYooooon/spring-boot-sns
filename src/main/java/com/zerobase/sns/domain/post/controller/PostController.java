@@ -8,6 +8,7 @@ import com.zerobase.sns.domain.post.service.PostService;
 import java.security.Principal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -42,5 +43,11 @@ public class PostController {
     Post updatedPost = postService.updatePost(postId, postUpdateDTO, principal);
 
     return ResponseEntity.ok(PostDTO.convertToDTO(updatedPost));
+  }
+
+  // 게시글 삭제
+  @DeleteMapping("/{postId}")
+  public void deletePost(@PathVariable Long postId, Principal principal) {
+    postService.deletePost(postId, principal);
   }
 }

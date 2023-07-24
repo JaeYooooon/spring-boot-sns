@@ -66,7 +66,7 @@ public class PostService {
 
     // 알람 생성
     for (Tag tag : tags) {
-      createAlarm(user, tag.getUser(), savedPost);
+      createAlarm(user, tag.getUser(), savedPost, tag);
       tag.setPost(savedPost);
       tagRepository.save(tag);
     }
@@ -97,12 +97,29 @@ public class PostService {
     return postRepository.save(post);
   }
 
+  // 게시글 삭제
+  @Transactional
+  public void deletePost(Long postId, Principal principal) {
+    String userId = principal.getName();
+    User user = userRepository.findByUserId(userId)
+        .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
 
-  private void createAlarm(User tagger, User taggedUser, Post post) {
+    Post post = postRepository.findById(postId)
+        .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
+
+    if (!post.getUser().equals(user)) {
+      throw new CustomException(UNAUTHORIZED_ACCESS);
+    }
+
+    postRepository.delete(post);
+  }
+
+  private void createAlarm(User tagger, User taggedUser, Post post, Tag tag) {
     String content = tagger.getNickName() + "님이 당신을 '" + post.getTitle() + "' 글에 태그했습니다.";
     Alarm alarm = Alarm.builder()
         .content(content)
         .user(taggedUser)
+        .tag(tag)
         .build();
     alarmRepository.save(alarm);
   }
