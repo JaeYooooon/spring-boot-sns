@@ -73,8 +73,8 @@ public class PostController {
 
   // 게시글 상세
   @GetMapping("/{postId}")
-  public ResponseEntity<PostDetailDTO> getPostDetail(@PathVariable Long postId) {
-    Post post = postService.getPostById(postId);
+  public ResponseEntity<PostDetailDTO> getPostDetail(@PathVariable Long postId, Principal principal) {
+    Post post = postService.getPostById(postId, principal);
     return ResponseEntity.ok(PostDetailDTO.convertToDTO(post));
   }
 }

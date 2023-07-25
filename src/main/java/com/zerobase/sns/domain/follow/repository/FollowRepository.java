@@ -21,4 +21,6 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
   Page<Follow> findByFollowingAndStatus(User follower, FollowStatus status, Pageable pageable);
 
   List<Follow> findUsersByStatusAndFollower(FollowStatus followStatus, User user);
+
+  boolean existsByStatusAndFollowerAndFollowing(FollowStatus status, User follower, User following);
 }

@@ -1,5 +1,6 @@
 package com.zerobase.sns.domain.post.service;
 
+import static com.zerobase.sns.domain.follow.entity.FollowStatus.*;
 import static com.zerobase.sns.global.exception.ErrorCode.NOT_FOUND_POST;
 import static com.zerobase.sns.global.exception.ErrorCode.NOT_FOUND_USER;
 import static com.zerobase.sns.global.exception.ErrorCode.UNAUTHORIZED_ACCESS;
@@ -134,7 +135,7 @@ public class PostService {
     List<User> followings = new ArrayList<>();
 
     List<Follow> followingUsers = followRepository.findUsersByStatusAndFollower(
-        FollowStatus.FOLLOWING, currentUser);
+        FOLLOWING, currentUser);
     for (Follow follow : followingUsers) {
       followings.add(follow.getFollowing());
     }
@@ -183,9 +184,26 @@ public class PostService {
   }
 
   // 게시글 상세
-  public Post getPostById(Long postId) {
-    return postRepository.findById(postId)
+  public Post getPostById(Long postId, Principal principal) {
+    String userId = principal.getName();
+    User currentUser = userRepository.findByUserId(userId)
+        .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
+
+    Post post = postRepository.findById(postId)
         .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
+
+    if (post.getUser().equals(currentUser) || post.getUser().getIsPrivate()) {
+      return post;
+    }
+
+    boolean isFollowing = followRepository
+        .existsByStatusAndFollowerAndFollowing(FOLLOWING, currentUser, post.getUser());
+
+    if (isFollowing) {
+      return post;
+    }
+
+    throw new CustomException(UNAUTHORIZED_ACCESS);
   }
 
   private void createAlarm(User tagger, User taggedUser, Post post, Tag tag) {
