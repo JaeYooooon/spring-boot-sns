@@ -9,6 +9,8 @@ import com.zerobase.sns.domain.alarm.repository.AlarmRepository;
 import com.zerobase.sns.domain.follow.entity.Follow;
 import com.zerobase.sns.domain.follow.entity.FollowStatus;
 import com.zerobase.sns.domain.follow.repository.FollowRepository;
+import com.zerobase.sns.domain.likes.entity.Likes;
+import com.zerobase.sns.domain.likes.repository.LikesRepository;
 import com.zerobase.sns.domain.post.dto.PostCreateDTO;
 import com.zerobase.sns.domain.post.dto.PostUpdateDTO;
 import com.zerobase.sns.domain.post.entity.Post;
@@ -39,6 +41,7 @@ public class PostService {
   private final TagRepository tagRepository;
   private final AlarmRepository alarmRepository;
   private final FollowRepository followRepository;
+  private final LikesRepository likesRepository;
 
   // 게시글 작성
   @Transactional
@@ -145,6 +148,32 @@ public class PostService {
     return postRepository.findByUserIn(followings, sortedPageable);
   }
 
+  // 좋아요
+  @Transactional
+  public void toggleLikePost(Long postId, Principal principal) {
+    String userId = principal.getName();
+    User user = userRepository.findByUserId(userId)
+        .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
+
+    Post post = postRepository.findById(postId)
+        .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
+
+    Likes existingLike = likesRepository.findByUserAndPost(user, post);
+
+    if (existingLike != null) {
+      likesRepository.delete(existingLike);
+      post.setLikeCount(post.getLikeCount() - 1);
+    } else {
+      Likes like = Likes.builder()
+          .user(user)
+          .post(post)
+          .isLike(true)
+          .build();
+
+      likesRepository.save(like);
+      post.setLikeCount(post.getLikeCount() + 1);
+    }
+  }
 
   private void createAlarm(User tagger, User taggedUser, Post post, Tag tag) {
     String content = tagger.getNickName() + "님이 당신을 '" + post.getTitle() + "' 글에 태그했습니다.";

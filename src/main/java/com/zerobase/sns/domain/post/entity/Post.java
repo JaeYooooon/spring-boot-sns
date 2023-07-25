@@ -61,6 +61,8 @@ public class Post extends BaseEntity {
   @JoinColumn(name = "user_id")
   private User user;
 
+  private int likeCount;
+
   @PreUpdate
   public void onPreUpdate() {
     this.modifiedTime = LocalDateTime.now();

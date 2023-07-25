@@ -63,4 +63,10 @@ public class PostController {
 
     return ResponseEntity.ok(PostListDTO.convertToDTO(postPage));
   }
+
+  // 좋아요
+  @PostMapping("/{postId}/like")
+  public void toggleLikePost(@PathVariable Long postId, Principal principal) {
+    postService.toggleLikePost(postId, principal);
+  }
 }
