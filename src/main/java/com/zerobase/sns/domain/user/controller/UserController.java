@@ -1,5 +1,7 @@
 package com.zerobase.sns.domain.user.controller;
 
+import com.zerobase.sns.domain.alarm.dto.AlarmDTO;
+import com.zerobase.sns.domain.alarm.entity.Alarm;
 import com.zerobase.sns.domain.user.dto.UserDTO;
 import com.zerobase.sns.domain.user.dto.UserFollowListDTO;
 import com.zerobase.sns.domain.user.dto.UserReqDTO;
@@ -9,6 +11,8 @@ import com.zerobase.sns.domain.user.entity.User;
 import com.zerobase.sns.domain.user.service.UserService;
 import java.security.Principal;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -87,5 +91,12 @@ public class UserController {
   public ResponseEntity<UserFollowListDTO> getFollowList(Principal principal) {
 
     return ResponseEntity.ok(userService.getFollowList(principal));
+  }
+
+  // 본인 알람 조회
+  @GetMapping("/alarm")
+  public ResponseEntity<Page<AlarmDTO>> getAlarms(Principal principal, Pageable pageable) {
+    Page<Alarm> alarmList = userService.getAlarmsByUserId(principal, pageable);
+    return ResponseEntity.ok(AlarmDTO.convertToDTO(alarmList));
   }
 }

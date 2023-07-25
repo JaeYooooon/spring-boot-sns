@@ -6,6 +6,8 @@ import static com.zerobase.sns.global.exception.ErrorCode.ALREADY_EXIST_USER;
 import static com.zerobase.sns.global.exception.ErrorCode.NONE_CORRECT_PW;
 import static com.zerobase.sns.global.exception.ErrorCode.NOT_FOUND_USER;
 
+import com.zerobase.sns.domain.alarm.entity.Alarm;
+import com.zerobase.sns.domain.alarm.repository.AlarmRepository;
 import com.zerobase.sns.domain.follow.dto.FollowerDTO;
 import com.zerobase.sns.domain.follow.dto.FollowingDTO;
 import com.zerobase.sns.domain.user.dto.UserDTO;
@@ -22,6 +24,10 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +40,7 @@ public class UserService {
   private final PasswordEncoder passwordEncoder;
   private final JwtTokenProvider jwtTokenProvider;
   private final RedisLockRepository redisLockRepository;
+  private final AlarmRepository alarmRepository;
 
   // 회원 가입
   @Transactional
@@ -173,6 +180,19 @@ public class UserService {
         .followerList(followerDTOs)
         .followingList(followingDTOs)
         .build();
+  }
+
+  // 본인 알람 조회
+  public Page<Alarm> getAlarmsByUserId(Principal principal, Pageable pageable) {
+    String userId = principal.getName();
+    User user = userRepository.findByUserId(userId)
+        .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
+
+    Sort defaultSort = Sort.by(Sort.Direction.DESC, "createdTime");
+    Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+        defaultSort);
+
+    return alarmRepository.findByUser(user, sortedPageable);
   }
 
   private User getUserByPrincipal(Principal principal) {
