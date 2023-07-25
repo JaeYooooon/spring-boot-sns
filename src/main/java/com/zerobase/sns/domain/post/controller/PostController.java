@@ -2,6 +2,7 @@ package com.zerobase.sns.domain.post.controller;
 
 import com.zerobase.sns.domain.post.dto.PostCreateDTO;
 import com.zerobase.sns.domain.post.dto.PostDTO;
+import com.zerobase.sns.domain.post.dto.PostDetailDTO;
 import com.zerobase.sns.domain.post.dto.PostListDTO;
 import com.zerobase.sns.domain.post.dto.PostUpdateDTO;
 import com.zerobase.sns.domain.post.entity.Post;
@@ -68,5 +69,12 @@ public class PostController {
   @PostMapping("/{postId}/like")
   public void toggleLikePost(@PathVariable Long postId, Principal principal) {
     postService.toggleLikePost(postId, principal);
+  }
+
+  // 게시글 상세
+  @GetMapping("/{postId}")
+  public ResponseEntity<PostDetailDTO> getPostDetail(@PathVariable Long postId) {
+    Post post = postService.getPostById(postId);
+    return ResponseEntity.ok(PostDetailDTO.convertToDTO(post));
   }
 }

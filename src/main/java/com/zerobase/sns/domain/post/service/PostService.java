@@ -175,6 +175,12 @@ public class PostService {
     }
   }
 
+  // 게시글 상세
+  public Post getPostById(Long postId) {
+    return postRepository.findById(postId)
+        .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
+  }
+
   private void createAlarm(User tagger, User taggedUser, Post post, Tag tag) {
     String content = tagger.getNickName() + "님이 당신을 '" + post.getTitle() + "' 글에 태그했습니다.";
     Alarm alarm = Alarm.builder()
