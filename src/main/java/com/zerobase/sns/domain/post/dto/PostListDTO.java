@@ -18,6 +18,8 @@ public class PostListDTO {
 
   private String nickName;
   private String title;
+  private int likeCount;
+  private int commentCount;
   private LocalDateTime createdTime;
   private LocalDateTime modifiedTime;
 
@@ -25,6 +27,8 @@ public class PostListDTO {
     return postPage.map(post -> PostListDTO.builder()
         .nickName(post.getUser().getNickName())
         .title(post.getTitle())
+        .likeCount(post.getLikeCount())
+        .commentCount(post.getCommentCount())
         .createdTime(post.getCreatedTime())
         .modifiedTime(post.getModifiedTime())
         .build());

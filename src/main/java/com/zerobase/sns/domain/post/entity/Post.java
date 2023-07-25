@@ -62,6 +62,16 @@ public class Post extends BaseEntity {
   private User user;
 
   private int likeCount;
+  private int commentCount;
+
+  public int getCommentCount() {
+    return comments.size();
+  }
+
+  // 좋아요 수 조회
+  public int getLikeCount() {
+    return likes.size();
+  }
 
   @PreUpdate
   public void onPreUpdate() {

@@ -145,7 +145,14 @@ public class PostService {
     Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
         Sort.by(Sort.Direction.DESC, "createdTime"));
 
-    return postRepository.findByUserIn(followings, sortedPageable);
+    Page<Post> posts = postRepository.findByUserIn(followings, sortedPageable);
+
+    for (Post post : posts.getContent()) {
+      post.setCommentCount(post.getCommentCount());
+      post.setLikeCount(post.getLikeCount());
+    }
+
+    return posts;
   }
 
   // 좋아요

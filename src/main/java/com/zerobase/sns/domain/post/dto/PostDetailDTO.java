@@ -58,7 +58,6 @@ public class PostDetailDTO {
         })
         .toList();
 
-
     return PostDetailDTO.builder()
         .nickName(post.getUser().getNickName())
         .title(post.getTitle())
