@@ -1,18 +1,19 @@
 package com.zerobase.sns.domain.post.service;
 
-import static com.zerobase.sns.domain.follow.entity.FollowStatus.*;
+import static com.zerobase.sns.domain.follow.entity.FollowStatus.FOLLOWING;
 import static com.zerobase.sns.global.exception.ErrorCode.NOT_FOUND_POST;
 import static com.zerobase.sns.global.exception.ErrorCode.NOT_FOUND_USER;
 import static com.zerobase.sns.global.exception.ErrorCode.UNAUTHORIZED_ACCESS;
 
 import com.zerobase.sns.domain.alarm.entity.Alarm;
 import com.zerobase.sns.domain.alarm.repository.AlarmRepository;
-import com.zerobase.sns.domain.follow.entity.Follow;
-import com.zerobase.sns.domain.follow.entity.FollowStatus;
 import com.zerobase.sns.domain.follow.repository.FollowRepository;
 import com.zerobase.sns.domain.likes.entity.Likes;
 import com.zerobase.sns.domain.likes.repository.LikesRepository;
 import com.zerobase.sns.domain.post.dto.PostCreateDTO;
+import com.zerobase.sns.domain.post.dto.PostDTO;
+import com.zerobase.sns.domain.post.dto.PostDetailDTO;
+import com.zerobase.sns.domain.post.dto.PostListDTO;
 import com.zerobase.sns.domain.post.dto.PostUpdateDTO;
 import com.zerobase.sns.domain.post.entity.Post;
 import com.zerobase.sns.domain.post.repository.PostRepository;
@@ -46,7 +47,7 @@ public class PostService {
 
   // 게시글 작성
   @Transactional
-  public Post createPost(PostCreateDTO postCreateDTO, Principal principal) {
+  public PostDTO createPost(PostCreateDTO postCreateDTO, Principal principal) {
     String userId = principal.getName();
     User user = userRepository.findByUserId(userId)
         .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
@@ -83,12 +84,12 @@ public class PostService {
       tagRepository.save(tag);
     }
 
-    return savedPost;
+    return PostDTO.convertToDTO(savedPost);
   }
 
   // 게시글 수정
   @Transactional
-  public Post updatePost(Long postId, PostUpdateDTO postUpdateDTO, Principal principal) {
+  public PostDTO updatePost(Long postId, PostUpdateDTO postUpdateDTO, Principal principal) {
     String userId = principal.getName();
     User user = userRepository.findByUserId(userId)
         .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
@@ -106,7 +107,9 @@ public class PostService {
     post.setTitle(title);
     post.setContent(content);
 
-    return postRepository.save(post);
+    postRepository.save(post);
+
+    return PostDTO.convertToDTO(post);
   }
 
   // 게시글 삭제
@@ -127,18 +130,13 @@ public class PostService {
   }
 
   // 게시글 목록
-  public Page<Post> getAllPosts(Principal principal, Pageable pageable) {
+  public Page<PostListDTO> getAllPosts(Principal principal, Pageable pageable) {
     String userId = principal.getName();
     User currentUser = userRepository.findByUserId(userId)
         .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
 
-    List<User> followings = new ArrayList<>();
-
-    List<Follow> followingUsers = followRepository.findUsersByStatusAndFollower(
-        FOLLOWING, currentUser);
-    for (Follow follow : followingUsers) {
-      followings.add(follow.getFollowing());
-    }
+    List<User> followings = followRepository.findFollowingUsersByStatusAndFollower(FOLLOWING,
+        currentUser);
 
     followings.add(currentUser);
 
@@ -146,14 +144,9 @@ public class PostService {
     Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
         Sort.by(Sort.Direction.DESC, "createdTime"));
 
-    Page<Post> posts = postRepository.findByUserIn(followings, sortedPageable);
+    Page<Post> postPage = postRepository.findByUserIn(followings, sortedPageable);
 
-    for (Post post : posts.getContent()) {
-      post.setCommentCount(post.getCommentCount());
-      post.setLikeCount(post.getLikeCount());
-    }
-
-    return posts;
+    return PostListDTO.convertToDTO(postPage);
   }
 
   // 좋아요
@@ -170,7 +163,6 @@ public class PostService {
 
     if (existingLike != null) {
       likesRepository.delete(existingLike);
-      post.setLikeCount(post.getLikeCount() - 1);
     } else {
       Likes like = Likes.builder()
           .user(user)
@@ -179,12 +171,11 @@ public class PostService {
           .build();
 
       likesRepository.save(like);
-      post.setLikeCount(post.getLikeCount() + 1);
     }
   }
 
   // 게시글 상세
-  public Post getPostById(Long postId, Principal principal) {
+  public PostDetailDTO getPostById(Long postId, Principal principal) {
     String userId = principal.getName();
     User currentUser = userRepository.findByUserId(userId)
         .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
@@ -192,15 +183,15 @@ public class PostService {
     Post post = postRepository.findById(postId)
         .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
 
-    if (post.getUser().equals(currentUser) || post.getUser().getIsPrivate()) {
-      return post;
+    if (post.getUser().equals(currentUser) || !post.getUser().getIsPrivate()) {
+      return PostDetailDTO.convertToDTO(post);
     }
 
     boolean isFollowing = followRepository
         .existsByStatusAndFollowerAndFollowing(FOLLOWING, currentUser, post.getUser());
 
     if (isFollowing) {
-      return post;
+      return PostDetailDTO.convertToDTO(post);
     }
 
     throw new CustomException(UNAUTHORIZED_ACCESS);

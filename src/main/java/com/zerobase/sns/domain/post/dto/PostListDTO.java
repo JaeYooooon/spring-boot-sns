@@ -27,8 +27,8 @@ public class PostListDTO {
     return postPage.map(post -> PostListDTO.builder()
         .nickName(post.getUser().getNickName())
         .title(post.getTitle())
-        .likeCount(post.getLikeCount())
-        .commentCount(post.getCommentCount())
+        .likeCount(post.getLikes().size())
+        .commentCount(post.getComments().size())
         .createdTime(post.getCreatedTime())
         .modifiedTime(post.getModifiedTime())
         .build());
