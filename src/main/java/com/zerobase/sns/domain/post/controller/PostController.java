@@ -5,7 +5,6 @@ import com.zerobase.sns.domain.post.dto.PostDTO;
 import com.zerobase.sns.domain.post.dto.PostDetailDTO;
 import com.zerobase.sns.domain.post.dto.PostListDTO;
 import com.zerobase.sns.domain.post.dto.PostUpdateDTO;
-import com.zerobase.sns.domain.post.entity.Post;
 import com.zerobase.sns.domain.post.service.PostService;
 import java.security.Principal;
 import lombok.RequiredArgsConstructor;
@@ -33,9 +32,9 @@ public class PostController {
   public ResponseEntity<PostDTO> createPost(@RequestBody PostCreateDTO postCreateDTO,
       Principal principal) {
 
-    Post post = postService.createPost(postCreateDTO, principal);
+    PostDTO post = postService.createPost(postCreateDTO, principal);
 
-    return ResponseEntity.ok(PostDTO.convertToDTO(post));
+    return ResponseEntity.ok(post);
   }
 
   // 게시글 수정
@@ -45,9 +44,9 @@ public class PostController {
       @RequestBody PostUpdateDTO postUpdateDTO,
       Principal principal
   ) {
-    Post updatedPost = postService.updatePost(postId, postUpdateDTO, principal);
+    PostDTO post = postService.updatePost(postId, postUpdateDTO, principal);
 
-    return ResponseEntity.ok(PostDTO.convertToDTO(updatedPost));
+    return ResponseEntity.ok(post);
   }
 
   // 게시글 삭제
@@ -60,9 +59,9 @@ public class PostController {
   @GetMapping
   public ResponseEntity<Page<PostListDTO>> getPostList(Principal principal, Pageable pageable) {
 
-    Page<Post> postPage = postService.getAllPosts(principal, pageable);
+    Page<PostListDTO> posts = postService.getAllPosts(principal, pageable);
 
-    return ResponseEntity.ok(PostListDTO.convertToDTO(postPage));
+    return ResponseEntity.ok(posts);
   }
 
   // 좋아요
@@ -73,8 +72,9 @@ public class PostController {
 
   // 게시글 상세
   @GetMapping("/{postId}")
-  public ResponseEntity<PostDetailDTO> getPostDetail(@PathVariable Long postId, Principal principal) {
-    Post post = postService.getPostById(postId, principal);
-    return ResponseEntity.ok(PostDetailDTO.convertToDTO(post));
+  public ResponseEntity<PostDetailDTO> getPostDetail(@PathVariable Long postId,
+      Principal principal) {
+    PostDetailDTO post = postService.getPostById(postId, principal);
+    return ResponseEntity.ok(post);
   }
 }
