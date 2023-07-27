@@ -22,9 +22,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.LastModifiedDate;
 
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -58,6 +60,18 @@ public class Post extends BaseEntity {
   @ManyToOne
   @JoinColumn(name = "user_id")
   private User user;
+
+  private int likeCount;
+  private int commentCount;
+
+  public int getCommentCount() {
+    return comments.size();
+  }
+
+  // 좋아요 수 조회
+  public int getLikeCount() {
+    return likes.size();
+  }
 
   @PreUpdate
   public void onPreUpdate() {

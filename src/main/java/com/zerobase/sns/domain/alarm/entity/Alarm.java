@@ -35,4 +35,5 @@ public class Alarm extends BaseEntity {
   @OneToOne
   @JoinColumn(name = "tag_id")
   private Tag tag;
+
 }

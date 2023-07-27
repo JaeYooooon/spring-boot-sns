@@ -3,6 +3,7 @@ package com.zerobase.sns.domain.likes.entity;
 import com.zerobase.sns.domain.post.entity.Post;
 import com.zerobase.sns.domain.user.entity.User;
 import com.zerobase.sns.global.entity.BaseEntity;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -32,4 +33,7 @@ public class Likes extends BaseEntity {
   @ManyToOne
   @JoinColumn(name = "post_id")
   private Post post;
+
+  @Column(nullable = false)
+  private Boolean isLike;
 }
