@@ -3,8 +3,10 @@ package com.zerobase.sns.global.s3;
 import static com.zerobase.sns.global.exception.ErrorCode.S3_UPLOAD_ERROR;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.zerobase.sns.global.exception.CustomException;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,8 +39,16 @@ public class S3Uploader {
     return amazonS3.getUrl(bucket, fileName).toString();
   }
 
-  //파일 삭제
+  // 파일 삭제
   public void delete(String key) {
     amazonS3.deleteObject(bucket, key);
+  }
+
+  // 파일 리스트 삭제
+  public void deleteBatch(List<String> keys) {
+    if (!keys.isEmpty()) {
+      amazonS3.deleteObjects(
+          new DeleteObjectsRequest(bucket).withKeys(keys.toArray(new String[0])));
+    }
   }
 }

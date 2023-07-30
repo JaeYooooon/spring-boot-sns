@@ -90,31 +90,31 @@ public class StoryService {
     Story story = storyRepository.findById(storyId)
         .orElseThrow(() -> new CustomException(NOT_FOUND_STORY));
 
-    boolean visitExists = visitorRepository.existsByStoryAndVisitor(story, user);
-
-    // 방문자 히스토리
-    if (!visitExists) {
-      Visitor visitor = Visitor.builder()
-          .story(story)
-          .visitor(user)
-          .build();
-
-      visitorRepository.save(visitor);
-    }
-
-    if (story.getUser().equals(user) || !story.getUser().getIsPrivate()) {
+    if (user.equals(story.getUser())) {
       return StoryDetailDTO.convertToDTO(story);
     }
 
     boolean isFollowing = followRepository
         .existsByStatusAndFollowerAndFollowing(FOLLOWING, user, story.getUser());
 
-    if (isFollowing) {
-      StoryDetailDTO.convertToDTO(story);
+    if (isFollowing || !story.getUser().getIsPrivate()) {
+      // 방문자 히스토리
+      boolean visitExists = visitorRepository.existsByStoryAndVisitor(story, user);
+      if (!visitExists) {
+        Visitor visitor = Visitor.builder()
+            .story(story)
+            .visitor(user)
+            .build();
+
+        visitorRepository.save(visitor);
+      }
+
+      return StoryDetailDTO.convertToDTO(story);
     }
 
     throw new CustomException(UNAUTHORIZED_ACCESS);
   }
+
 
   // 스토리 전체 목록
   public Page<StoryListDTO> getAllStory(Principal principal, Pageable pageable) {
@@ -162,12 +162,14 @@ public class StoryService {
 
     List<Story> storyList = storyRepository.findByCreatedTimeBefore(expiredTime);
 
-    for (Story story : storyList) {
-      String imageUrl = URLDecoder.decode(story.getImage(), StandardCharsets.UTF_8);
-      String key = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
+    if (!storyList.isEmpty()) {
+      List<String> imageKeys = storyList.stream()
+          .map(story -> URLDecoder.decode(story.getImage(), StandardCharsets.UTF_8)
+              .substring(story.getImage().lastIndexOf('/') + 1))
+          .collect(Collectors.toList());
 
-      storyRepository.delete(story);
-      s3Uploader.delete(key);
+      storyRepository.deleteAllInBatch(storyList);
+      s3Uploader.deleteBatch(imageKeys);
     }
   }
 }
