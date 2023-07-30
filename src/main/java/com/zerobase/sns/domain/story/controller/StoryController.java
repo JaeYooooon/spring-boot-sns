@@ -5,6 +5,7 @@ import com.zerobase.sns.domain.story.dto.StoryDetailDTO;
 import com.zerobase.sns.domain.story.dto.StoryListDTO;
 import com.zerobase.sns.domain.story.service.StoryService;
 import java.security.Principal;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -61,5 +62,13 @@ public class StoryController {
     Page<StoryListDTO> storyList = storyService.getAllStory(principal, pageable);
 
     return ResponseEntity.ok(storyList);
+  }
+
+  // 방문자 목록
+  @GetMapping("/{storyId}/visitors")
+  public ResponseEntity<List<String>> getStoryVisitors(@PathVariable Long storyId,
+      Principal principal) {
+    List<String> visitor = storyService.getStoryVisitor(storyId, principal);
+    return ResponseEntity.ok(visitor);
   }
 }

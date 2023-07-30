@@ -21,6 +21,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -131,5 +132,25 @@ public class StoryService {
     Page<Story> storyPage = storyRepository.findByUserIn(followings, sortedPageable);
 
     return StoryListDTO.convertToDTO(storyPage);
+  }
+
+  // 방문자 목록
+  public List<String> getStoryVisitor(Long storyId, Principal principal) {
+    String userId = principal.getName();
+    User user = userRepository.findByUserId(userId)
+        .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
+    Story story = storyRepository.findById(storyId)
+        .orElseThrow(() -> new CustomException(NOT_FOUND_STORY));
+
+    if (!story.getUser().equals(user)) {
+      throw new CustomException(UNAUTHORIZED_ACCESS);
+    }
+
+    List<Visitor> visitors = visitorRepository.findByStory(story);
+
+    return visitors.stream()
+        .map(Visitor::getVisitor)
+        .map(User::getNickName)
+        .collect(Collectors.toList());
   }
 }
