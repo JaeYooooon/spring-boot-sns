@@ -21,10 +21,17 @@ public enum ErrorCode {
   FOLLOW_REQUEST_ALREADY_REJECTED(HttpStatus.BAD_REQUEST, "이미 거절되었습니다."),
 
   // 게시글
-  NOT_FOUND_POST(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
+  NOT_FOUND_POST(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
+
+  // 스토리
+  NOT_FOUND_STORY(HttpStatus.NOT_FOUND, "스토리를 찾을 수 없습니다."),
 
   // 권한
-  UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "권한이 없습니다.");
+  UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "권한이 없습니다."),
+
+  // S3
+  S3_UPLOAD_ERROR(HttpStatus.BAD_REQUEST, "파일 업로드 중 오류가 발생하였습니다. "),
+  S3_DELETE_ERROR(HttpStatus.BAD_REQUEST, "파일 삭제 중 오류가 발생하였습니다. ");
 
 
   private final HttpStatus httpStatus;
