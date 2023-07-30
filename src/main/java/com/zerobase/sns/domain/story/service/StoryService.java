@@ -13,6 +13,8 @@ import com.zerobase.sns.domain.story.entity.Story;
 import com.zerobase.sns.domain.story.repository.StoryRepository;
 import com.zerobase.sns.domain.user.entity.User;
 import com.zerobase.sns.domain.user.repository.UserRepository;
+import com.zerobase.sns.domain.visitor.entity.Visitor;
+import com.zerobase.sns.domain.visitor.repository.VisitorRepository;
 import com.zerobase.sns.global.exception.CustomException;
 import com.zerobase.sns.global.s3.S3Uploader;
 import java.net.URLDecoder;
@@ -36,6 +38,7 @@ public class StoryService {
   private final UserRepository userRepository;
   private final S3Uploader s3Uploader;
   private final FollowRepository followRepository;
+  private final VisitorRepository visitorRepository;
 
   // 스토리 작성
   @Transactional
@@ -84,6 +87,18 @@ public class StoryService {
         .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
     Story story = storyRepository.findById(storyId)
         .orElseThrow(() -> new CustomException(NOT_FOUND_STORY));
+
+    boolean visitExists = visitorRepository.existsByStoryAndVisitor(story, user);
+
+    // 방문자 히스토리
+    if (!visitExists) {
+      Visitor visitor = Visitor.builder()
+          .story(story)
+          .visitor(user)
+          .build();
+
+      visitorRepository.save(visitor);
+    }
 
     if (story.getUser().equals(user) || !story.getUser().getIsPrivate()) {
       return StoryDetailDTO.convertToDTO(story);
