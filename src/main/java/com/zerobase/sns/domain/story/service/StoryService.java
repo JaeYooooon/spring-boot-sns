@@ -20,6 +20,7 @@ import com.zerobase.sns.global.s3.S3Uploader;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -152,5 +153,21 @@ public class StoryService {
         .map(Visitor::getVisitor)
         .map(User::getNickName)
         .collect(Collectors.toList());
+  }
+
+  // 24시간 지난 스토리 삭제
+  public void deleteExpiredStory() {
+    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime expiredTime = now.minusDays(1);
+
+    List<Story> storyList = storyRepository.findByCreatedTimeBefore(expiredTime);
+
+    for (Story story : storyList) {
+      String imageUrl = URLDecoder.decode(story.getImage(), StandardCharsets.UTF_8);
+      String key = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
+
+      storyRepository.delete(story);
+      s3Uploader.delete(key);
+    }
   }
 }

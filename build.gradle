@@ -41,6 +41,9 @@ dependencies {
     // S3
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.0.1.RELEASE'
     compileOnly 'org.springframework.cloud:spring-cloud-starter-aws:2.0.1.RELEASE'
+
+    // Spring Batch
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
 }
 
 tasks.named('test') {
