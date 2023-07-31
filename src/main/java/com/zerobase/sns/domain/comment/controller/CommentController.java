@@ -6,6 +6,7 @@ import com.zerobase.sns.domain.comment.service.CommentService;
 import java.security.Principal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,5 +29,13 @@ public class CommentController {
     CommentResDTO createdComment = commentService.createComment(postId, commentCreateDTO,
         principal);
     return ResponseEntity.ok(createdComment);
+  }
+
+  @DeleteMapping("/{commentId}")
+  public void deleteComment(
+      @PathVariable Long commentId,
+      Principal principal
+  ) {
+    commentService.deleteComment(commentId, principal);
   }
 }

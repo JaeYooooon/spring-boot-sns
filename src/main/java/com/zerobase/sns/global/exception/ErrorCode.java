@@ -26,6 +26,9 @@ public enum ErrorCode {
   // 스토리
   NOT_FOUND_STORY(HttpStatus.NOT_FOUND, "스토리를 찾을 수 없습니다."),
 
+  // 댓글
+  NOT_FOUND_COMMENT(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."),
+
   // 권한
   UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "권한이 없습니다."),
 

@@ -1,6 +1,7 @@
 package com.zerobase.sns.domain.comment.service;
 
 import static com.zerobase.sns.domain.follow.entity.FollowStatus.FOLLOWING;
+import static com.zerobase.sns.global.exception.ErrorCode.NOT_FOUND_COMMENT;
 import static com.zerobase.sns.global.exception.ErrorCode.NOT_FOUND_POST;
 import static com.zerobase.sns.global.exception.ErrorCode.NOT_FOUND_USER;
 import static com.zerobase.sns.global.exception.ErrorCode.UNAUTHORIZED_ACCESS;
@@ -58,5 +59,22 @@ public class CommentService {
     Comment savedComment = commentRepository.save(comment);
 
     return CommentResDTO.convertToDTO(savedComment);
+  }
+
+  @Transactional
+  public void deleteComment(Long commentId, Principal principal) {
+    String userId = principal.getName();
+    User user = userRepository.findByUserId(userId)
+        .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
+
+    Comment comment = commentRepository.findById(commentId)
+        .orElseThrow(() -> new CustomException(NOT_FOUND_COMMENT));
+
+    if (!Objects.equals(user.getId(), comment.getUser().getId())
+        && !Objects.equals(user.getId(), comment.getPost().getUser().getId())) {
+      throw new CustomException(UNAUTHORIZED_ACCESS);
+    }
+
+    commentRepository.delete(comment);
   }
 }
