@@ -1,8 +1,6 @@
 package com.zerobase.sns.domain.comment.dto;
 
-import com.zerobase.sns.domain.reply.dto.ReplyDTO;
-import java.time.LocalDateTime;
-import java.util.List;
+import com.zerobase.sns.domain.comment.entity.Comment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,9 +12,13 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CommentDTO {
-  private String nickName;
+public class CommentResDTO {
+
   private String content;
-  private LocalDateTime createdTime;
-  private List<ReplyDTO> replies;
+
+  public static CommentResDTO convertToDTO(Comment comment) {
+    return CommentResDTO.builder()
+        .content(comment.getContent())
+        .build();
+  }
 }
