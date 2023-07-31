@@ -5,6 +5,7 @@ import com.zerobase.sns.domain.visitor.entity.Visitor;
 import com.zerobase.sns.global.entity.BaseEntity;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -38,6 +39,6 @@ public class Story extends BaseEntity {
   @JoinColumn(name = "user_id")
   private User user;
 
-  @OneToMany(mappedBy = "story")
+  @OneToMany(mappedBy = "story", cascade = CascadeType.ALL)
   private List<Visitor> visitors = new ArrayList<>();
 }
