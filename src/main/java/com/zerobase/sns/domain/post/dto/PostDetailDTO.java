@@ -1,11 +1,13 @@
 package com.zerobase.sns.domain.post.dto;
 
 import com.zerobase.sns.domain.comment.dto.CommentDTO;
+import com.zerobase.sns.domain.comment.entity.Comment;
 import com.zerobase.sns.domain.likes.dto.LikesDTO;
 import com.zerobase.sns.domain.post.entity.Post;
 import com.zerobase.sns.domain.reply.dto.ReplyDTO;
 import com.zerobase.sns.domain.tag.dto.TagDTO;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -41,9 +43,10 @@ public class PostDetailDTO {
         .map(likes -> LikesDTO.builder()
             .nickName(likes.getUser().getNickName())
             .build())
-        .toList();
+        .collect(Collectors.toList());
 
     List<CommentDTO> commentDTOS = post.getComments().stream()
+        .sorted(Comparator.comparing(Comment::getCreatedTime).reversed())
         .map(comment -> {
           List<ReplyDTO> replyDTOS = comment.getReplies().stream()
               .map(reply -> ReplyDTO.builder()
@@ -52,11 +55,13 @@ public class PostDetailDTO {
               .collect(Collectors.toList());
 
           return CommentDTO.builder()
+              .nickName(comment.getUser().getNickName())
               .content(comment.getContent())
+              .createdTime(comment.getCreatedTime())
               .replies(replyDTOS)
               .build();
         })
-        .toList();
+        .collect(Collectors.toList());
 
     return PostDetailDTO.builder()
         .nickName(post.getUser().getNickName())
