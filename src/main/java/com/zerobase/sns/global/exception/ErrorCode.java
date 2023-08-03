@@ -29,6 +29,9 @@ public enum ErrorCode {
   // 댓글
   NOT_FOUND_COMMENT(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."),
 
+  // 대댓글
+  NOT_FOUND_REPLY(HttpStatus.NOT_FOUND, "답글을 찾을 수 없습니다."),
+
   // 권한
   UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "권한이 없습니다."),
 
