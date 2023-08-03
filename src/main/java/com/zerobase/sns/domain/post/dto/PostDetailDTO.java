@@ -50,7 +50,9 @@ public class PostDetailDTO {
         .map(comment -> {
           List<ReplyDTO> replyDTOS = comment.getReplies().stream()
               .map(reply -> ReplyDTO.builder()
+                  .nickName(reply.getUser().getNickName())
                   .reply(reply.getReply())
+                  .createdTime(reply.getCreatedTime())
                   .build())
               .collect(Collectors.toList());
 

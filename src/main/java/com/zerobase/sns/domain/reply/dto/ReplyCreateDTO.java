@@ -1,6 +1,5 @@
 package com.zerobase.sns.domain.reply.dto;
 
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,9 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ReplyDTO {
+public class ReplyCreateDTO {
 
-  private String nickName;
-  private String reply;
-  private LocalDateTime createdTime;
+  private String content;
 }
