@@ -27,7 +27,7 @@ cloud:
     s3:
       bucket: ${BUCKET}
     region:
-      static: ap-northeast-2
+      static: ap-southeast-2
     stack:
       auto: false
     credentials:
