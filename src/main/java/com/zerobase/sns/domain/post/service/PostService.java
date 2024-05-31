@@ -162,10 +162,10 @@ public class PostService {
     Likes existingLike = likesRepository.findByUserAndPost(user, post);
 
     if (existingLike != null) {
-      Command unlikeCommand = new LikePostCommand(likesRepository, user, post);
+      Command unlikeCommand = new LikePostCommand(likesRepository, user, post, existingLike);
       unlikeCommand.undo();
     } else {
-      Command likeCommand = new LikePostCommand(likesRepository, user, post);
+      Command likeCommand = new LikePostCommand(likesRepository, user, post, null);
       likeCommand.execute();
     }
   }

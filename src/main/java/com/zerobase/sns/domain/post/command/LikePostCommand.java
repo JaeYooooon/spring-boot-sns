@@ -11,10 +11,11 @@ public class LikePostCommand implements Command {
   private Post post;
   private Likes like;
 
-  public LikePostCommand(LikesRepository likesRepository, User user, Post post) {
+  public LikePostCommand(LikesRepository likesRepository, User user, Post post, Likes like) {
     this.likesRepository = likesRepository;
     this.user = user;
     this.post = post;
+    this.like = like;
   }
 
   @Override
