@@ -10,6 +10,8 @@ import com.zerobase.sns.domain.alarm.repository.AlarmRepository;
 import com.zerobase.sns.domain.follow.repository.FollowRepository;
 import com.zerobase.sns.domain.likes.entity.Likes;
 import com.zerobase.sns.domain.likes.repository.LikesRepository;
+import com.zerobase.sns.domain.post.command.Command;
+import com.zerobase.sns.domain.post.command.LikePostCommand;
 import com.zerobase.sns.domain.post.dto.PostCreateDTO;
 import com.zerobase.sns.domain.post.dto.PostDTO;
 import com.zerobase.sns.domain.post.dto.PostDetailDTO;
@@ -155,22 +157,16 @@ public class PostService {
     String userId = principal.getName();
     User user = userRepository.findByUserId(userId)
         .orElseThrow(() -> new CustomException(NOT_FOUND_USER));
-
     Post post = postRepository.findById(postId)
         .orElseThrow(() -> new CustomException(NOT_FOUND_POST));
-
     Likes existingLike = likesRepository.findByUserAndPost(user, post);
 
     if (existingLike != null) {
-      likesRepository.delete(existingLike);
+      Command unlikeCommand = new LikePostCommand(likesRepository, user, post);
+      unlikeCommand.undo();
     } else {
-      Likes like = Likes.builder()
-          .user(user)
-          .post(post)
-          .isLike(true)
-          .build();
-
-      likesRepository.save(like);
+      Command likeCommand = new LikePostCommand(likesRepository, user, post);
+      likeCommand.execute();
     }
   }
 
