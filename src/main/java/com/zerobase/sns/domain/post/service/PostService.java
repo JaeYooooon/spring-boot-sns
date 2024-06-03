@@ -25,10 +25,14 @@ import com.zerobase.sns.domain.user.entity.User;
 import com.zerobase.sns.domain.user.repository.UserRepository;
 import com.zerobase.sns.global.exception.CustomException;
 import java.security.Principal;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -46,6 +50,8 @@ public class PostService {
   private final AlarmRepository alarmRepository;
   private final FollowRepository followRepository;
   private final LikesRepository likesRepository;
+
+  private static final Logger logger = LoggerFactory.getLogger(PostService.class);
 
   // 게시글 작성
   @Transactional
@@ -146,7 +152,12 @@ public class PostService {
     Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
         Sort.by(Sort.Direction.DESC, "createdTime"));
 
+    Instant start = Instant.now();
     Page<Post> postPage = postRepository.findByUserIn(followings, sortedPageable);
+    Instant end = Instant.now();
+
+    long duration = Duration.between(start, end).toMillis();
+    logger.info("time -> " + duration + " ms");
 
     return PostListDTO.convertToDTO(postPage);
   }
