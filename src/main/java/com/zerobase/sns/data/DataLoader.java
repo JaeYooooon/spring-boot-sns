@@ -8,6 +8,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,15 +27,23 @@ public class DataLoader implements CommandLineRunner {
       "Sample content 5"
   };
   private static final Random RANDOM = new Random();
+  private static final int BATCH_SIZE = 1000;
+
   @Autowired
   private PostRepository postRepository;
+
   @Autowired
   private UserRepository userRepository;
+
   @Autowired
   private PasswordEncoder passwordEncoder;
 
+  @PersistenceContext
+  private EntityManager entityManager;
+
   @Override
-  public void run(String... args){
+  @Transactional
+  public void run(String... args) {
     if (postRepository.count() > 0) {
       System.out.println("데이터 생성 x");
       return;
@@ -40,8 +51,7 @@ public class DataLoader implements CommandLineRunner {
 
     List<User> users = createUsers();
 
-    List<Post> posts = new ArrayList<>();
-    for (int i = 0; i < 10000; i++) {
+    for (int i = 0; i < 1000000; i++) {
       User user = users.get(RANDOM.nextInt(users.size()));
 
       Post post = Post.builder()
@@ -53,11 +63,18 @@ public class DataLoader implements CommandLineRunner {
           .commentCount(RANDOM.nextInt(500))
           .build();
 
-      posts.add(post);
-    }
+      entityManager.persist(post);
 
-    postRepository.saveAll(posts);
-    System.out.println(posts.size() + "개의 데이터 추가");
+      if (i % BATCH_SIZE == 0 && i > 0) {
+        entityManager.flush();
+        entityManager.clear();
+        System.out.println(i + "개의 데이터 삽입 완료");
+      }
+    }
+    entityManager.flush();
+    entityManager.clear();
+
+    System.out.println("100만 개의 데이터 추가 완료");
   }
 
   private List<User> createUsers() {
